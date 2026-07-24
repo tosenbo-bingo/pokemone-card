@@ -1,0 +1,1297 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ポケカ英語版サーチャー</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@500;700;900&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #12131c;
+    --bg-2: #191b28;
+    --surface: #1f2233;
+    --surface-2: #262a3f;
+    --gold: #f0b429;
+    --gold-soft: #f7d488;
+    --red: #e6483a;
+    --text: #f4f2ea;
+    --muted: #9198b3;
+    --line: #33374f;
+  }
+  *{ box-sizing: border-box; }
+  html,body{
+    margin:0; padding:0;
+    background: radial-gradient(circle at 20% -10%, #232744 0%, var(--bg) 55%);
+    color: var(--text);
+    font-family: 'Noto Sans JP', sans-serif;
+    min-height: 100vh;
+  }
+  .wrap{
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 40px 20px 80px;
+  }
+  header{
+    text-align: center;
+    margin-bottom: 34px;
+  }
+  .eyebrow{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    color: var(--gold-soft);
+    background: rgba(240,180,41,0.08);
+    border: 1px solid rgba(240,180,41,0.35);
+    padding: 5px 12px;
+    border-radius: 999px;
+    margin-bottom: 16px;
+  }
+  .ball{
+    width:10px; height:10px; border-radius:50%;
+    background: linear-gradient(180deg, var(--red) 50%, #fff 50%);
+    border: 1.5px solid #0b0c12;
+    flex: none;
+  }
+  h1{
+    font-family: 'Zen Maru Gothic', sans-serif;
+    font-weight: 900;
+    font-size: 30px;
+    line-height: 1.35;
+    margin: 0 0 10px;
+    background: linear-gradient(100deg, var(--gold-soft), #fff 40%, var(--gold-soft));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  p.lead{
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.7;
+    margin: 0 auto;
+    max-width: 460px;
+  }
+  .panel{
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 22px;
+    margin-bottom: 18px;
+  }
+  label{
+    display:block;
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 8px;
+    letter-spacing: 0.04em;
+  }
+  .search-row{
+    display:flex;
+    gap: 10px;
+  }
+  input[type="text"]{
+    flex: 1;
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    color: var(--text);
+    font-size: 17px;
+    font-family: 'Noto Sans JP', sans-serif;
+    padding: 13px 14px;
+    border-radius: 12px;
+    outline: none;
+    min-width: 0;
+  }
+  input[type="text"]:focus{
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(240,180,41,0.18);
+  }
+  button{
+    font-family: 'Zen Maru Gothic', sans-serif;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+  }
+  .btn-primary{
+    background: linear-gradient(180deg, var(--gold-soft), var(--gold));
+    color: #241a03;
+    padding: 0 22px;
+    flex: none;
+  }
+  .btn-primary:disabled{ opacity: 0.6; cursor: default; }
+  .btn-primary:focus-visible, .btn-secondary:focus-visible, .chip:focus-visible{
+    outline: 2px solid var(--gold-soft);
+    outline-offset: 2px;
+  }
+  .chips{
+    display:flex; flex-wrap: wrap; gap: 8px; margin-top: 14px;
+  }
+  .chip{
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    color: var(--muted);
+    font-size: 13px;
+    padding: 6px 12px;
+    border-radius: 999px;
+  }
+  .chip:hover{ border-color: var(--gold); color: var(--gold-soft); }
+
+  /* Result card, styled like a foil card */
+  .result{
+    position: relative;
+    border-radius: 18px;
+    padding: 2px;
+    background: linear-gradient(120deg, #3a3f5c, var(--gold), #3a3f5c 60%);
+    background-size: 220% 220%;
+    display: none;
+    margin-bottom: 18px;
+  }
+  .result.show{ display:block; animation: sweep 2.6s ease-in-out infinite; }
+  @keyframes sweep{
+    0%{ background-position: 0% 50%; }
+    50%{ background-position: 100% 50%; }
+    100%{ background-position: 0% 50%; }
+  }
+  .result-inner{
+    background: var(--surface-2);
+    border-radius: 16px;
+    padding: 22px;
+  }
+  .result-row{
+    display:flex; align-items:center; justify-content: space-between; gap: 14px; flex-wrap: wrap;
+  }
+  .lang-tag{
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+    margin-bottom: 4px;
+  }
+  .ja-name{
+    font-size: 15px;
+    color: var(--muted);
+  }
+  .arrow{ color: var(--gold-soft); font-size: 20px; }
+  .en-name{
+    font-family: 'Zen Maru Gothic', sans-serif;
+    font-weight: 900;
+    font-size: 26px;
+    color: #fff;
+  }
+  .result-actions{
+    display:flex; gap: 10px; margin-top: 18px; flex-wrap: wrap;
+  }
+  .btn-secondary{
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--text);
+    padding: 10px 16px;
+  }
+  .btn-secondary:hover{ border-color: var(--gold-soft); color: var(--gold-soft); }
+  .kana-row{
+    display:flex;
+    align-items:center;
+    gap: 10px;
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px dashed var(--line);
+    flex-wrap: wrap;
+  }
+  .kana-label{ font-size: 11px; color: var(--muted); letter-spacing: 0.05em; }
+  .kana-text{
+    font-family: 'Zen Maru Gothic', sans-serif;
+    font-weight: 900;
+    font-size: 19px;
+    color: var(--gold-soft);
+  }
+  .kana-badge{
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    color: var(--muted);
+  }
+  .kana-badge.verified{ color: #6fd08c; border-color: rgba(111,208,140,0.4); background: rgba(111,208,140,0.08); }
+  .kana-badge.auto{ color: var(--gold-soft); border-color: rgba(240,180,41,0.35); background: rgba(240,180,41,0.08); }
+  .url-preview{
+    margin-top: 14px;
+    font-size: 12px;
+    color: var(--muted);
+    word-break: break-all;
+    background: var(--bg-2);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 10px 12px;
+  }
+
+  .status{
+    font-size: 13px;
+    color: var(--muted);
+    min-height: 18px;
+    margin-top: 12px;
+  }
+  .status.error{ color: var(--red); }
+
+  .manual-toggle{
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 12px;
+    text-decoration: underline;
+    padding: 0;
+    margin-top: 10px;
+    font-family: 'Noto Sans JP', sans-serif;
+  }
+  .manual-toggle:hover{ color: var(--gold-soft); }
+  .manual-box{ display:none; margin-top: 12px; }
+  .manual-box.show{ display:block; }
+  .manual-box input{
+    width: 100%;
+    margin-bottom: 10px;
+  }
+
+  .mode-tabs{
+    display:flex;
+    gap: 8px;
+    margin-bottom: 18px;
+  }
+  .mode-tab{
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    color: var(--muted);
+    padding: 11px 10px;
+    border-radius: 12px;
+    font-family: 'Zen Maru Gothic', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+  }
+  .mode-tab.active{
+    background: linear-gradient(180deg, var(--gold-soft), var(--gold));
+    color: #241a03;
+    border-color: transparent;
+  }
+  .category-tag{
+    display: inline-block;
+    font-size: 11px;
+    color: var(--gold-soft);
+    background: rgba(240,180,41,0.12);
+    border: 1px solid rgba(240,180,41,0.3);
+    padding: 3px 9px;
+    border-radius: 999px;
+    margin-bottom: 6px;
+  }
+
+  footer{
+    text-align:center;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.8;
+    margin-top: 30px;
+  }
+  footer a{ color: var(--gold-soft); }
+
+  @media (prefers-reduced-motion: reduce){
+    .result.show{ animation: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="eyebrow"><span class="ball"></span>POKÉMON CARD EN SEARCH</span>
+    <h1>日本語で入力して<br>英語版カードを探す</h1>
+    <p class="lead">ポケモンの名前を日本語で入力すると英語名に変換し、asia.pokemon-card.com の英語版カード検索結果を新しいタブで開きます。</p>
+  </header>
+
+  <div class="mode-tabs">
+    <button class="mode-tab active" id="tab-pokemon" type="button">ポケモン</button>
+    <button class="mode-tab" id="tab-trainer" type="button">トレーナーズ</button>
+  </div>
+
+  <div class="panel">
+    <label for="ja-input" id="input-label">ポケモンの名前（日本語）</label>
+    <div class="search-row">
+      <input type="text" id="ja-input" placeholder="例：ピカチュウ" autocomplete="off">
+      <button class="btn-primary" id="search-btn">検索</button>
+    </div>
+    <div class="status" id="status"></div>
+    <button class="manual-toggle" id="manual-toggle" type="button">英語名を自分で入力する</button>
+    <div class="manual-box" id="manual-box">
+      <input type="text" id="manual-input" placeholder="例：Pikachu">
+      <button class="btn-secondary" id="manual-search-btn" type="button">この英語名で検索結果を開く</button>
+    </div>
+    <div class="chips" id="history-chips"></div>
+  </div>
+
+  <div class="result" id="result">
+    <div class="result-inner">
+      <div class="result-row">
+        <div>
+          <div class="category-tag" id="result-category" style="display:none;"></div>
+          <div class="lang-tag">JAPANESE → ENGLISH</div>
+          <div class="ja-name" id="result-ja"></div>
+        </div>
+        <div class="arrow">→</div>
+        <div>
+          <div class="lang-tag">CARD SEARCH KEYWORD</div>
+          <div class="en-name" id="result-en"></div>
+        </div>
+      </div>
+      <div class="kana-row" id="kana-row">
+        <span class="kana-label">読み方</span>
+        <span class="kana-text" id="result-kana"></span>
+        <span class="kana-badge" id="kana-badge"></span>
+      </div>
+      <div class="result-actions">
+        <button class="btn-primary" id="open-btn">検索結果を開く ↗</button>
+        <button class="btn-secondary" id="copy-btn">英語名をコピー</button>
+      </div>
+      <div class="url-preview" id="url-preview"></div>
+    </div>
+  </div>
+
+  <footer>
+    検索元：<a href="https://asia.pokemon-card.com/sg/card-search/list/" target="_blank" rel="noopener">asia.pokemon-card.com</a><br>
+    翻訳は PokéAPI の公式データ（全ポケモン分の日本語⇄英語名）を初回アクセス時に読み込んで使用しています。サイト側の仕様変更により、結果が正しく絞り込まれない場合があります。<br>
+    カタカナ読みは sljfaq.org の発音辞書に自動で問い合わせて表示しています（取得できない場合は簡易的な自動生成に切り替わります）。
+  </footer>
+</div>
+
+<script>
+// Small built-in dictionary for common Pokémon (instant, no network needed)
+const LOCAL_DICT = {
+  // --- National Dex #1-151 (Generation I, complete) ---
+  "フシギダネ":"Bulbasaur","フシギソウ":"Ivysaur","フシギバナ":"Venusaur",
+  "ヒトカゲ":"Charmander","リザード":"Charmeleon","リザードン":"Charizard",
+  "ゼニガメ":"Squirtle","カメール":"Wartortle","カメックス":"Blastoise",
+  "キャタピー":"Caterpie","トランセル":"Metapod","バタフリー":"Butterfree",
+  "ビードル":"Weedle","コクーン":"Kakuna","スピアー":"Beedrill",
+  "ポッポ":"Pidgey","ピジョン":"Pidgeotto","ピジョット":"Pidgeot",
+  "コラッタ":"Rattata","ラッタ":"Raticate","オニスズメ":"Spearow","オニドリル":"Fearow",
+  "アーボ":"Ekans","アーボック":"Arbok","ピカチュウ":"Pikachu","ライチュウ":"Raichu",
+  "サンド":"Sandshrew","サンドパン":"Sandslash",
+  "ニドラン♀":"Nidoran♀","ニドリーナ":"Nidorina","ニドクイン":"Nidoqueen",
+  "ニドラン♂":"Nidoran♂","ニドリーノ":"Nidorino","ニドキング":"Nidoking",
+  "ピッピ":"Clefairy","ピクシー":"Clefable","ロコン":"Vulpix","キュウコン":"Ninetales",
+  "プリン":"Jigglypuff","プクリン":"Wigglytuff","ズバット":"Zubat","ゴルバット":"Golbat",
+  "ナゾノクサ":"Oddish","クサイハナ":"Gloom","ラフレシア":"Vileplume",
+  "パラス":"Paras","パラセクト":"Parasect","コンパン":"Venonat","モルフォン":"Venomoth",
+  "ディグダ":"Diglett","ダグトリオ":"Dugtrio","ニャース":"Meowth","ペルシアン":"Persian",
+  "コダック":"Psyduck","ゴルダック":"Golduck","マンキー":"Mankey","オコリザル":"Primeape",
+  "ガーディ":"Growlithe","ウインディ":"Arcanine",
+  "ニョロモ":"Poliwag","ニョロゾ":"Poliwhirl","ニョロボン":"Poliwrath",
+  "ケーシィ":"Abra","ユンゲラー":"Kadabra","フーディン":"Alakazam",
+  "ワンリキー":"Machop","ゴーリキー":"Machoke","カイリキー":"Machamp",
+  "マダツボミ":"Bellsprout","ウツドン":"Weepinbell","ウツボット":"Victreebel",
+  "メノクラゲ":"Tentacool","ドククラゲ":"Tentacruel",
+  "イシツブテ":"Geodude","ゴローン":"Graveler","ゴローニャ":"Golem",
+  "ポニータ":"Ponyta","ギャロップ":"Rapidash","ヤドン":"Slowpoke","ヤドラン":"Slowbro",
+  "コイル":"Magnemite","レアコイル":"Magneton","カモネギ":"Farfetch’d",
+  "ドードー":"Doduo","ドードリオ":"Dodrio","パウワウ":"Seel","ジュゴン":"Dewgong",
+  "ベトベター":"Grimer","ベトベトン":"Muk","シェルダー":"Shellder","パルシェン":"Cloyster",
+  "ゴース":"Gastly","ゴースト":"Haunter","ゲンガー":"Gengar",
+  "イワーク":"Onix","スリープ":"Drowzee","スリーパー":"Hypno",
+  "クラブ":"Krabby","キングラー":"Kingler","ビリリダマ":"Voltorb","マルマイン":"Electrode",
+  "タマタマ":"Exeggcute","ナッシー":"Exeggutor","カラカラ":"Cubone","ガラガラ":"Marowak",
+  "サワムラー":"Hitmonlee","エビワラー":"Hitmonchan","ベロリンガ":"Lickitung",
+  "ドガース":"Koffing","マタドガス":"Weezing","サイホーン":"Rhyhorn","サイドン":"Rhydon",
+  "ラッキー":"Chansey","モンジャラ":"Tangela","ガルーラ":"Kangaskhan",
+  "タッツー":"Horsea","シードラ":"Seadra","トサキント":"Goldeen","アズマオウ":"Seaking",
+  "ヒトデマン":"Staryu","スターミー":"Starmie","バリヤード":"Mr. Mime",
+  "ストライク":"Scyther","ルージュラ":"Jynx","エレブー":"Electabuzz","ブーバー":"Magmar",
+  "カイロス":"Pinsir","ケンタロス":"Tauros","コイキング":"Magikarp","ギャラドス":"Gyarados",
+  "ラプラス":"Lapras","メタモン":"Ditto","イーブイ":"Eevee",
+  "シャワーズ":"Vaporeon","サンダース":"Jolteon","ブースター":"Flareon",
+  "ポリゴン":"Porygon","オムナイト":"Omanyte","オムスター":"Omastar",
+  "カブト":"Kabuto","カブトプス":"Kabutops","プテラ":"Aerodactyl","カビゴン":"Snorlax",
+  "フリーザー":"Articuno","サンダー":"Zapdos","ファイヤー":"Moltres",
+  "ミニリュウ":"Dratini","ハクリュー":"Dragonair","カイリュー":"Dragonite",
+  "ミュウツー":"Mewtwo","ミュウ":"Mew",
+
+  // --- Popular / TCG-relevant Pokémon from later generations ---
+  "ポッチャマ":"Piplup","ポッタイシ":"Prinplup","エンペルト":"Empoleon",
+  "ヒコザル":"Chimchar","モウカザル":"Monferno","ゴウカザル":"Infernape",
+  "ナエトル":"Turtwig","ハヤシガメ":"Grotle","ドダイトス":"Torterra",
+  "キモリ":"Treecko","ジュプトル":"Grovyle","ジュカイン":"Sceptile",
+  "アチャモ":"Torchic","ワカシャモ":"Combusken","バシャーモ":"Blaziken",
+  "ミズゴロウ":"Mudkip","ヌマクロー":"Marshtomp","ラグラージ":"Swampert",
+  "リオル":"Riolu","ルカリオ":"Lucario","フカマル":"Gible","ガバイト":"Gabite","ガブリアス":"Garchomp",
+  "ケロマツ":"Froakie","ゲコガシラ":"Frogadier","ゲッコウガ":"Greninja",
+  "ミライドン":"Miraidon","コライドン":"Koraidon",
+  "ザシアン":"Zacian","ザマゼンタ":"Zamazenta","ムゲンダイナ":"Eternatus",
+  "ヤミラミ":"Sableye","デオキシス":"Deoxys","レックウザ":"Rayquaza",
+  "グラードン":"Groudon","カイオーガ":"Kyogre",
+  "ディアルガ":"Dialga","パルキア":"Palkia","ギラティナ":"Giratina","アルセウス":"Arceus",
+  "ゼクロム":"Zekrom","レシラム":"Reshiram","キュレム":"Kyurem",
+  "ソルガレオ":"Solgaleo","ルナアーラ":"Lunala","ネクロズマ":"Necrozma",
+  "ピカチュウダブルパック":"Pikachu",
+  "ニャオハ":"Sprigatito","ホゲータ":"Fuecoco","クワッス":"Quaxly",
+  "モクロー":"Rowlet","ニャビー":"Litten","アシマリ":"Popplio",
+  "サルノリ":"Grookey","ヒバニー":"Scorbunny","メッソン":"Sobble",
+  "ダークライ":"Darkrai","マナフィ":"Manaphy","ビクティニ":"Victini",
+  "ゲノセクト":"Genesect","メロエッタ":"Meloetta","ジガルデ":"Zygarde",
+  "ホウオウ":"Ho-Oh","ルギア":"Lugia","セレビィ":"Celebi","ジラーチ":"Jirachi",
+
+  // --- Generation V (Black/White) — popular / TCG-relevant ---
+  "モグリュー":"Drilbur","ドリュウズ":"Excadrill",
+  "ゾロア":"Zorua","ゾロアーク":"Zoroark",
+  "チョロネコ":"Purrloin","レパルダス":"Liepard",
+  "ミジュマル":"Oshawott","フタチマル":"Dewott","ダイケンキ":"Samurott",
+  "ポカブ":"Tepig","チャオブー":"Pignite","エンブオー":"Emboar",
+  "ツタージャ":"Snivy","ジャノビー":"Servine","ジャローダ":"Serperior",
+  "デスマス":"Yamask","デスカーン":"Cofagrigus",
+  "モノズ":"Deino","ジヘッド":"Zweilous","サザンドラ":"Hydreigon",
+  "コロモリ":"Woobat","ババリボン":"Swoobat",
+  "ヒヒダルマ":"Darmanitan","ダルマッカ":"Darumaka",
+  "シキジカ":"Deerling","メブキジカ":"Sawsbuck",
+  "ズルッグ":"Scraggy","ズルズキン":"Scrafty",
+  "フシデ":"Sewaddle","カラサリス":"Swadloon","ハハコモリ":"Leavanny",
+
+  // --- Generation VI-VII — popular / TCG-relevant ---
+  "ヤヤコマ":"Fletchling","ヒノヤコマ":"Fletchinder","ファイアロー":"Talonflame",
+  "フォッコ":"Fennekin","テールナー":"Braixen","マフォクシー":"Delphox",
+  "ホルビー":"Bunnelby","ホルード":"Diggersby",
+  "ニャスパー":"Espurr","ニャオニクス":"Meowstic",
+  "デデンネ":"Dedenne","ヌメラ":"Goomy","ヌメイル":"Sliggoo","ヌメルゴン":"Goodra",
+  "カメテテ":"Clauncher","ガメノデス":"Clawitzer",
+  "マーイーカ":"Inkay","カラマネロ":"Malamar",
+  "ヤングース":"Yungoos","デカグース":"Gumshoos",
+  "アゴジムシ":"Grubbin","デンヂムシ":"Charjabug","クワガノン":"Vikavolt",
+  "マケンカニ":"Crabrawler","ケケンカニ":"Crabominable",
+  "ミミッキュ":"Mimikyu","ジジーロン":"Drampa","バクガメス":"Turtonator",
+  "カプ・コケコ":"Tapu Koko","カプ・テテフ":"Tapu Lele","カプ・ブルル":"Tapu Bulu","カプ・レヒレ":"Tapu Fini",
+  "オリーニョ":"Smoliv","オリーヴォ":"Dolliv","オリーヴァ":"Arboliva",
+  "ニャローテ":"Floragato","マスカーニャ":"Meowscarada",
+  "アチゲータ":"Crocalor","ラウドボーン":"Skeledirge",
+  "ウェルカモ":"Quaxwell","ウェーニバル":"Quaquaval",
+  "テラパゴス":"Terapagos","オーガポン":"Ogerpon","モモワロウ":"Pecharunt",
+  // Loyal Three
+  "イイネイヌ":"Okidogi","マシマシラ":"Munkidori","キチキギス":"Fezandipiti",
+  // Paradox Pokémon (Scarlet/Violet base game)
+  "イダイナキバ":"Great Tusk","サケブシッポ":"Scream Tail","アラブルタケ":"Brute Bonnet",
+  "ハバタクカミ":"Flutter Mane","チヲハウハネ":"Slither Wing","スナノケガワ":"Sandy Shocks",
+  "テツノワダチ":"Iron Treads","テツノツツミ":"Iron Bundle","テツノカイナ":"Iron Hands",
+  "テツノコウベ":"Iron Jugulis","テツノドクガ":"Iron Moth","テツノイバラ":"Iron Thorns",
+  // Paradox Pokémon (Indigo Disk DLC)
+  "ウネルミナモ":"Walking Wake","テツノイサハ":"Iron Leaves",
+  "ウガツホムラ":"Gouging Fire","タケルライコ":"Raging Bolt",
+  "テツノイワオ":"Iron Boulder","テツノカシラ":"Iron Crown",
+  // Other notable Gen IX
+  "パオジアン":"Chien-Pao","ディンルー":"Ting-Lu","イーユイ":"Wo-Chien","チオンジェン":"Chi-Yu",
+  "コレクレー":"Gimmighoul","サーフゴー":"Gholdengo","カヌチャン":"Bramblin",
+
+  // --- From pokecabook.com essentials list ---
+  "ネオラント":"Lumineon","かがやくゲッコウガ":"Radiant Greninja",
+  "ビーダル":"Bibarel","イキリンコ":"Squawkabilly"
+};
+
+/* ===================== English -> Katakana reading (best-effort) ===================== */
+// Confirmed correct katakana readings (verified from an official source, e.g. a
+// physical card or product listing), which always take priority over the
+// automatic phonetic approximation below. Report a correction and it gets
+// added here.
+const KATAKANA_OVERRIDES = {
+  "Drilbur": "ドリルバー"
+};
+
+const LM = "\u2015"; // internal long-vowel marker (rendered as ー at output time)
+const TH = "\u0001", SH = "\u0002", CH = "\u0003"; // digraph placeholders
+
+const CV_TABLE = {
+  '':  ['ア','イ','ウ','エ','オ'],
+  'b': ['バ','ビ','ブ','ベ','ボ'],
+  'c': ['カ','キ','ク','ケ','コ'],
+  'd': ['ダ','ディ','ドゥ','デ','ド'],
+  'f': ['ファ','フィ','フ','フェ','フォ'],
+  'g': ['ガ','ギ','グ','ゲ','ゴ'],
+  'h': ['ハ','ヒ','フ','ヘ','ホ'],
+  'j': ['ジャ','ジ','ジュ','ジェ','ジョ'],
+  'k': ['カ','キ','ク','ケ','コ'],
+  'l': ['ラ','リ','ル','レ','ロ'],
+  'm': ['マ','ミ','ム','メ','モ'],
+  'n': ['ナ','ニ','ヌ','ネ','ノ'],
+  'p': ['パ','ピ','プ','ペ','ポ'],
+  'r': ['ラ','リ','ル','レ','ロ'],
+  's': ['サ','シ','ス','セ','ソ'],
+  't': ['タ','チ','ツ','テ','ト'],
+  'v': ['ヴァ','ヴィ','ヴ','ヴェ','ヴォ'],
+  'w': ['ワ','ウィ','ウ','ウェ','ウォ'],
+  'y': ['ヤ','イ','ユ','イェ','ヨ'],
+  'z': ['ザ','ジ','ズ','ゼ','ゾ'],
+  [TH]: ['サ','シ','ス','セ','ソ'],
+  [SH]: ['シャ','シ','シュ','シェ','ショ'],
+  [CH]: ['チャ','チ','チュ','チェ','チョ'],
+};
+const VOWEL_IDX = { a:0, i:1, u:2, e:3, o:4 };
+function isVowel(ch){ return ch === 'a' || ch === 'e' || ch === 'i' || ch === 'o' || ch === 'u'; }
+
+// Rough grapheme-to-phoneme normalization. Katakana spellings of loanwords are
+// historically lexicalized rather than fully predictable from spelling, so this
+// covers common, fairly regular patterns and accepts imperfection on irregular
+// English spelling (silent letters, vowel-digraph ambiguity like "ea", etc.).
+function normalizeWord(raw){
+  let w = raw.toLowerCase();
+  w = w.replace(/’/g, "'");
+  w = w.replace(/'s\b/g, 'z');
+  w = w.replace(/n't\b/g, 'nto');
+  w = w.replace(/tion\b/g, 'shon');
+  w = w.replace(/sion\b/g, 'jon');
+  w = w.replace(/([bcdfghjklmnpqrstvwxyz])\1/g, '$1'); // collapse doubled consonants
+  w = w.replace(/ph/g, 'f');
+  w = w.replace(/wh/g, 'w');
+  w = w.replace(/ck/g, 'k');
+  w = w.replace(/qu/g, 'kw');
+  w = w.replace(/x/g, 'ks');
+  w = w.replace(/ee/g, 'i' + LM);
+  w = w.replace(/oo/g, 'u' + LM);
+  w = w.replace(/a[iy]/g, 'ei');
+  // r-controlled vowels: er/ir/ur collapse to the same schwa+r sound as "ar" does
+  // NOT (they use "a", not their own vowel); "ar"/"or" keep their own vowel quality.
+  w = w.replace(/([aeiou])r(?![aeiou])/g, (m, v) => (('eiu'.includes(v)) ? 'a' : v) + LM);
+  w = w.replace(/e\b/g, ''); // drop silent trailing e
+  w = w.replace(/th/g, TH);
+  w = w.replace(/sh/g, SH);
+  w = w.replace(/ch/g, CH);
+  w = w.replace(/'/g, '');
+  return w;
+}
+
+function wordToKatakana(raw){
+  const w = normalizeWord(raw);
+  let out = '';
+  let i = 0;
+  while (i < w.length){
+    const ch = w[i];
+    if (ch === LM){ out += 'ー'; i++; continue; }
+    if (isVowel(ch)){ out += CV_TABLE[''][VOWEL_IDX[ch]]; i++; continue; }
+    if (!/[a-z\u0001-\u0003]/.test(ch)){ out += ch; i++; continue; }
+
+    // Gather a run of consonant "units" (each is 1 char; digraphs are already
+    // collapsed to single placeholder chars) up to the next vowel/marker/end.
+    let cluster = '';
+    let j = i;
+    while (j < w.length && !isVowel(w[j]) && w[j] !== LM){ cluster += w[j]; j++; }
+    const next = w[j];
+    if (next && isVowel(next)){
+      // All but the last consonant in the cluster get a default linking vowel
+      // ("o" after t/d for a softer approximation, "u" otherwise).
+      for (let k = 0; k < cluster.length - 1; k++){
+        const c = cluster[k];
+        const row = CV_TABLE[c] || CV_TABLE['t'];
+        out += (c === 't' || c === 'd') ? row[4] : row[2];
+      }
+      const last = cluster[cluster.length - 1];
+      const row = CV_TABLE[last] || CV_TABLE['t'];
+      out += row[VOWEL_IDX[next]];
+      i = j + 1;
+      if (w[i] === LM){ out += 'ー'; i++; }
+    } else {
+      // Trailing consonant(s) with nothing after them: n/m become ン, others
+      // get a default vowel row.
+      for (let k = 0; k < cluster.length; k++){
+        const c = cluster[k];
+        if (c === 'n' || c === 'm'){ out += 'ン'; continue; }
+        const row = CV_TABLE[c] || CV_TABLE['t'];
+        out += (c === 't' || c === 'd') ? row[4] : row[2];
+      }
+      i = j;
+      if (w[i] === LM){ out += 'ー'; i++; }
+    }
+  }
+  return out || raw;
+}
+
+function toKatakana(englishName){
+  if (KATAKANA_OVERRIDES[englishName]) return { text: KATAKANA_OVERRIDES[englishName], verified: true };
+  const parts = englishName.split(/([ \-])/);
+  const text = parts
+    .map(p => /[a-zA-Z]/.test(p) ? wordToKatakana(p) : (p === ' ' ? '\u3000' : p === '-' ? '\u30fb' : p))
+    .join('');
+  return { text, verified: false };
+}
+
+// --- Live lookup against sljfaq.org's pronunciation-dictionary-based converter ---
+// This is generally more accurate than the spelling-only approximation above,
+// since it's backed by an actual pronunciation dictionary. Best-effort: falls
+// back silently to the algorithmic reading if the request fails (e.g. CORS).
+const SLJFAQ_CACHE = {};
+
+async function fetchLiveKatakana(englishName){
+  if (SLJFAQ_CACHE[englishName] !== undefined) return SLJFAQ_CACHE[englishName];
+  try{
+    const url = 'https://www.sljfaq.org/cgi/e2k.cgi?word=' + encodeURIComponent(englishName);
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('network');
+    const html = await res.text();
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    const tables = Array.from(doc.querySelectorAll('table'));
+    let kanaParts = [];
+    for (const table of tables){
+      const rows = Array.from(table.querySelectorAll('tr')).slice(1); // skip header
+      if (rows.length === 0) continue;
+      const collected = [];
+      let matched = false;
+      for (const row of rows){
+        const cells = Array.from(row.querySelectorAll('td, th')).map(c => c.textContent.trim());
+        if (cells.length >= 2 && cells[0] && cells[1] && /[\u30A0-\u30FF]/.test(cells[1])){
+          collected.push(cells[1]);
+          matched = true;
+        }
+      }
+      if (matched && collected.length > 0){ kanaParts = collected; break; }
+    }
+    const result = kanaParts.length > 0 ? kanaParts.join('') : null;
+    SLJFAQ_CACHE[englishName] = result;
+    return result;
+  }catch(e){
+    SLJFAQ_CACHE[englishName] = null;
+    return null;
+  }
+}
+
+// Shows the algorithmic reading immediately, then quietly upgrades it to the
+// live dictionary-based reading if one comes back and the card is still
+// showing this same English name (avoids clobbering a newer search).
+async function upgradeKanaIfPossible(enName){
+  const live = await fetchLiveKatakana(enName);
+  if (!live) return;
+  if (els.resultEn.textContent !== enName) return; // user searched something else meanwhile
+  if (KATAKANA_OVERRIDES[enName]) return; // hand-confirmed override always wins
+  els.resultKana.textContent = live;
+  els.kanaBadge.textContent = '辞書サイトで確認';
+  els.kanaBadge.className = 'kana-badge verified';
+}
+
+// TCG suffixes that can appear directly appended to a Pokémon's Japanese name
+// (e.g. "ピカチュウex", "リザードンVSTAR"). These are stripped before lookup
+// and reattached to the translated English name.
+const CARD_SUFFIXES = ["VMAX","VSTAR","GX","EX","ex","V-UNION","V","BREAK"];
+
+function splitSuffix(jaName){
+  for (const suf of CARD_SUFFIXES){
+    if (jaName.endsWith(suf) && jaName.length > suf.length){
+      return { base: jaName.slice(0, jaName.length - suf.length).trim(), suffix: suf };
+    }
+  }
+  return { base: jaName, suffix: '' };
+}
+
+// --- Trainer card dictionary --------------------------------------------
+// Unlike Pokémon species, Trainer card names (Supporter/Item/Pokémon Tool/
+// Stadium) have no official public translation database, so this is a
+// curated starter set of well-known cards. Report any missing ones and
+// they can be added the same way the Pokémon dictionary was expanded.
+const TRAINER_DICT = {
+  // Supporter (サポート)
+  "博士の研究":{en:"Professor’s Research", type:"サポート"},
+  "ボスの指令":{en:"Boss’s Orders", type:"サポート"},
+  "ナンジャモ":{en:"Iono", type:"サポート"},
+  "マリィ":{en:"Marnie", type:"サポート"},
+  "シロナ":{en:"Cynthia", type:"サポート"},
+  "チェレン":{en:"Cheren", type:"サポート"},
+  "ベル":{en:"Bianca", type:"サポート"},
+  "リーリエ":{en:"Lillie", type:"サポート"},
+  "ツツジ":{en:"Roxanne", type:"サポート"},
+  "グルーシャ":{en:"Grusha", type:"サポート"},
+  "ペパー":{en:"Penny", type:"サポート"},
+  "シトロン":{en:"Clemont", type:"サポート"},
+  "ユリーカ":{en:"Bonnie", type:"サポート"},
+  "アセロラ":{en:"Acerola", type:"サポート"},
+  "カキ":{en:"Kiawe", type:"サポート"},
+  "スイレン":{en:"Lana", type:"サポート"},
+  "マオ":{en:"Mallow", type:"サポート"},
+  "ハウ":{en:"Hau", type:"サポート"},
+
+  // Item / Goods (グッズ)
+  "ハイパーボール":{en:"Ultra Ball", type:"グッズ"},
+  "モンスターボール":{en:"Poké Ball", type:"グッズ"},
+  "スーパーボール":{en:"Great Ball", type:"グッズ"},
+  "ネストボール":{en:"Nest Ball", type:"グッズ"},
+  "クイックボール":{en:"Quick Ball", type:"グッズ"},
+  "ふしぎなアメ":{en:"Rare Candy", type:"グッズ"},
+  "ポケモンいれかえ":{en:"Switch", type:"グッズ"},
+  "あなぬけのヒモ":{en:"Escape Rope", type:"グッズ"},
+  "ポケモンキャッチャー":{en:"Pokémon Catcher", type:"グッズ"},
+  "カウンターキャッチャー":{en:"Counter Catcher", type:"グッズ"},
+  "きずぐすり":{en:"Potion", type:"グッズ"},
+  "エネルギー回収":{en:"Energy Retrieval", type:"グッズ"},
+  "ダウジングマシン":{en:"Dowsing Machine", type:"グッズ"},
+  "バトルVIPパス":{en:"VIP Pass", type:"グッズ"},
+  "ポケギア3.0":{en:"Poké Gear 3.0", type:"グッズ"},
+
+  // Pokémon Tool (ポケモンのどうぐ)
+  "こだわりハチマキ":{en:"Choice Band", type:"ポケモンのどうぐ"},
+  "こだわりベルト":{en:"Choice Belt", type:"ポケモンのどうぐ"},
+  "森の封印石":{en:"Forest Seal Stone", type:"ポケモンのどうぐ"},
+
+  // Stadium (スタジアム)
+  "崩れたスタジアム":{en:"Collapsed Stadium", type:"スタジアム"},
+  "頂への雪道":{en:"Path to the Peak", type:"スタジアム"},
+  "ポケモンセンター":{en:"Pokémon Center", type:"スタジアム"},
+  "シンオウ神殿":{en:"Temple of Sinnoh", type:"スタジアム"},
+  "ボウルタウン":{en:"Artazon", type:"スタジアム"},
+  "ミアレシティ":{en:"Lumiose City", type:"スタジアム"},
+  "ミレアシティ":{en:"Lumiose City", type:"スタジアム"},
+  "ロケット団の監視塔":{en:"Team Rocket’s Watchtower", type:"スタジアム"},
+  "ゼロの大空洞":{en:"Area Zero Underdepths", type:"スタジアム"},
+  "バトルコロシアム":{en:"Battle Cage", type:"スタジアム"},
+  "夜の鉱山":{en:"Nighttime Mine", type:"スタジアム"},
+  "危ない廃墟":{en:"Risky Ruins", type:"スタジアム"},
+  "活力の森":{en:"Forest of Vitality", type:"スタジアム"},
+  "なみのりビーチ":{en:"Surfing Beach", type:"スタジアム"},
+  "夜のアカデミー":{en:"Academy at Night", type:"スタジアム"},
+  "プリズムタワー":{en:"Prism Tower", type:"スタジアム"},
+  "おまつり会場":{en:"Festival Grounds", type:"スタジアム"},
+  "お祭り会場":{en:"Festival Grounds", type:"スタジアム"},
+
+  // --- From pokecabook.com essentials list ---
+  // Item / Goods (グッズ)
+  "レベルボール":{en:"Level Ball", type:"グッズ"},
+  "キャプチャーアロマ":{en:"Capturing Aroma", type:"グッズ"},
+  "大地の器":{en:"Earthen Vessel", type:"グッズ"},
+  "すごいつりざお":{en:"Super Rod", type:"グッズ"},
+  "霧の水晶":{en:"Fog Crystal", type:"グッズ"},
+  "ヒスイのヘビーボール":{en:"Hisuian Heavy Ball", type:"グッズ"},
+  "トレッキングシューズ":{en:"Trekking Shoes", type:"グッズ"},
+  "エレキジェネレーター":{en:"Electric Generator", type:"グッズ"},
+  "ロストスイーパー":{en:"Lost Vacuum", type:"グッズ"},
+  "ダークパッチ":{en:"Dark Patch", type:"グッズ"},
+  // Supporter (サポート)
+  "キバナ":{en:"Raihan", type:"サポート"},
+  "シロナの覇気":{en:"Cynthia’s Ambition", type:"サポート"},
+  "セイボリー":{en:"Avery", type:"サポート"},
+  // Energy (エネルギー) — not one of the four Trainer subtypes, included for completeness
+  "ダブルターボエネルギー":{en:"Double Turbo Energy", type:"エネルギー"},
+  "ジェットエネルギー":{en:"Jet Energy", type:"エネルギー"},
+  "リッチエネルギー":{en:"Enriching Energy", type:"エネルギー"},
+  "レガシーエネルギー":{en:"Legacy Energy", type:"エネルギー"},
+  "プリズムエネルギー":{en:"Prism Energy", type:"エネルギー"},
+  "ミストエネルギー":{en:"Mist Energy", type:"エネルギー"},
+  "テレパス超エネルギー":{en:"Telepathic Energy", type:"エネルギー"},
+  "グロウ草エネルギー":{en:"Growing Energy", type:"エネルギー"},
+  "ブーメランエネルギー":{en:"Boomerang Energy", type:"エネルギー"},
+  "スパイクエネルギー":{en:"Spiky Energy", type:"エネルギー"},
+
+  // --- Additional Supporter cards ---
+  "トウコ":{en:"Hilda", type:"サポート"},
+  "ヒカリ":{en:"Dawn", type:"サポート"},
+  "アカマツ":{en:"Crispin", type:"サポート"},
+  "暗号マニアの解読":{en:"Ciphermaniac’s Codebreaking", type:"サポート"},
+  "シアノ":{en:"Cyrano", type:"サポート"},
+  "メイのはげまし":{en:"Rosa’s Encouragement", type:"サポート"},
+  "ラムダ":{en:"Team Rocket’s Petrel", type:"サポート"},
+  "タケシのスカウト":{en:"Brock’s Scouting", type:"サポート"},
+  "ミツルのおもいやり":{en:"Wally’s Compassion", type:"サポート"},
+  "ゼイユ":{en:"Carmine", type:"サポート"},
+  "クセロシキのたくらみ":{en:"Xerosic’s Machinations", type:"サポート"},
+  "AZのやすらぎ":{en:"AZ’s Tranquility", type:"サポート"},
+  "スグリ":{en:"Kieran", type:"サポート"},
+  "アクロマの執念":{en:"Colress’s Tenacity", type:"サポート"},
+  "空手王の稽古":{en:"Black Belt’s Training", type:"サポート"},
+  "ムク":{en:"Gwynn", type:"サポート"},
+  "グラジオの決戦":{en:"Gladion’s Final Battle", type:"サポート"},
+  "Nの筋書き":{en:"N’s Plan", type:"サポート"},
+  "Ｎの筋書き":{en:"N’s Plan", type:"サポート"},
+
+  // --- Additional Item / Goods cards ---
+  "なかよしポフィン":{en:"Buddy-Buddy Poffin", type:"グッズ"},
+  "夜のタンカ":{en:"Night Stretcher", type:"グッズ"},
+  "テラスタルオーブ":{en:"Tera Orb", type:"グッズ"},
+  "むしとりセット":{en:"Bug Catching Set", type:"グッズ"},
+  "ぽけもんいれかえ":{en:"Switch", type:"グッズ"},
+  "エネルギーつけかえ":{en:"Energy Switch", type:"グッズ"},
+  "パワープロテイン":{en:"Premium Power Pro", type:"グッズ"},
+  "プレシャスキャリー":{en:"Precious Trolley", type:"グッズ"},
+  "せいなるはい":{en:"Sacred Ash", type:"グッズ"},
+  "ガラスのラッパ":{en:"Glass Trumpet", type:"グッズ"},
+  "アンフェアスタンプ":{en:"Unfair Stamp", type:"グッズ"},
+  "レッドカード":{en:"Red Card", type:"グッズ"},
+  "ジャンボアイス":{en:"Jumbo Ice Cream", type:"グッズ"},
+  "ロケット団のレシーバー":{en:"Team Rocket’s Transceiver", type:"グッズ"},
+  "Nのポイントアップ":{en:"N’s PP Up", type:"グッズ"},
+  "Ｎのポイントアップ":{en:"N’s PP Up", type:"グッズ"},
+  "ワンダーパッチ":{en:"Wonder Patch", type:"グッズ"},
+
+  // --- Additional Pokémon Tool cards ---
+  "ふうせん":{en:"Air Balloon", type:"ポケモンのどうぐ"},
+  "くさりもち":{en:"Binding Mochi", type:"ポケモンのどうぐ"},
+  "サバイブギブス":{en:"Survival Brace", type:"ポケモンのどうぐ"},
+  "サバイブギプス":{en:"Survival Brace", type:"ポケモンのどうぐ"},
+  "ブレイブバングル":{en:"Brave Bangle", type:"ポケモンのどうぐ"},
+  "ヒーローマント":{en:"Hero’s Cape", type:"ポケモンのどうぐ"},
+  "ハンディサーキュレーター":{en:"Handheld Fan", type:"ポケモンのどうぐ"},
+  "きらめく結晶":{en:"Sparkling Crystal", type:"ポケモンのどうぐ"},
+  "ポケパッド":{en:"Poké Pad", type:"グッズ"},
+  "アイアンディフェンダー":{en:"Iron Defender", type:"ポケモンのどうぐ"},
+  "クラッシュハンマー":{en:"Crushing Hammer", type:"グッズ"},
+  "ハイパーアロマ":{en:"Hyper Aroma", type:"グッズ"},
+  "ファイトゴング":{en:"Fighting Gong", type:"ポケモンのどうぐ"},
+  "プライムキャッチャー":{en:"Prime Catcher", type:"ポケモンのどうぐ"},
+  "ポケモン回収サイクロン":{en:"Scoop Up Cyclone", type:"グッズ"},
+
+  // --- User-confirmed cards from recent Japan-only sets ---
+  "ダークベル":{en:"Dark Bell", type:"グッズ"},
+  "リトライバッジ":{en:"Backtrack Badge", type:"ポケモンのどうぐ"},
+  "リトライバッチ":{en:"Backtrack Badge", type:"ポケモンのどうぐ"},
+  "サビ組のしたっぱ":{en:"Rust Syndicate Grunt", type:"サポート"},
+  "変化の書":{en:"Transformation Tome", type:"グッズ"},
+  "ジブソ":{en:"Philippe", type:"サポート"},
+  "ジプソ":{en:"Philippe", type:"サポート"},
+  "タラゴン":{en:"Tarragon", type:"サポート"},
+  "ピュール":{en:"Naveen", type:"サポート"},
+  "あやしい時計":{en:"Strange Timepiece", type:"ポケモンのどうぐ"},
+
+  // --- Batch: Hop's items, Elite Four supporters, Team Rocket admins, misc ---
+  "ホップのバッグ":{en:"Hop's Bag", type:"グッズ"},
+  "ロケット団のびっくりボム":{en:"Team Rocket's Venture Bomb", type:"グッズ"},
+  "カウンターゲイン":{en:"Counter Gain", type:"ポケモンのどうぐ"},
+  "シロナのパワーウエイト":{en:"Cynthia's Power Weight", type:"ポケモンのどうぐ"},
+  "力の砂時計":{en:"Powerglass", type:"ポケモンのどうぐ"},
+  "ホップのこだわりはちまき":{en:"Hop's Choice Band", type:"ポケモンのどうぐ"},
+  "マキシマムベルト":{en:"Maximum Belt", type:"ポケモンのどうぐ"},
+  "リーリエの真珠":{en:"Lillie's Pearl", type:"ポケモンのどうぐ"},
+  "アイリスの闘志":{en:"Iris's Fighting Spirit", type:"サポート"},
+  "アオキの手際":{en:"Larry's Skill", type:"サポート"},
+  "アセロラのいたずら":{en:"Acerola's Mischief", type:"サポート"},
+  "アンズの秘技":{en:"Janine's Secret Art", type:"サポート"},
+  "カキツバタ":{en:"Drayton", type:"サポート"},
+  "ゴヨウの指名":{en:"Lucian's Assignment", type:"サポート"},
+  "サーファー":{en:"Surfer", type:"サポート"},
+  "探検家の先導":{en:"Explorer's Guidance", type:"サポート"},
+  "ハイダイ":{en:"Kofu", type:"サポート"},
+  "ハッサク":{en:"Hassel", type:"サポート"},
+  "マツバの確信":{en:"Morty's Confidence", type:"サポート"},
+  "ロケット団のアテナ":{en:"Team Rocket's Ariana", type:"サポート"},
+  "ロケット団のアポロ":{en:"Team Rocket's Archer", type:"サポート"},
+  "ロケット団のサカキ":{en:"Team Rocket's Giovanni", type:"サポート"},
+  "ロケット団のランス":{en:"Team Rocket's Proton", type:"サポート"},
+  "改造ハンマー":{en:"Enhanced Hammer", type:"グッズ"},
+  "ツールスクラッパー":{en:"Tool Scrapper", type:"グッズ"},
+  "メガシグナル":{en:"Mega Signal", type:"グッズ"},
+  "カナリィ":{en:"Canari", type:"サポート"},
+  "でんきだま":{en:"Light Ball", type:"ポケモンのどうぐ"},
+  "ぶあついうろこ":{en:"Thick Scale", type:"ポケモンのどうぐ"},
+  "ぶあついふろこ":{en:"Thick Scale", type:"ポケモンのどうぐ"},
+  "ヒビキの冒険":{en:"Ethan's Adventure", type:"サポート"},
+  "グラビティマウンテン":{en:"Gravity Mountain", type:"スタジアム"},
+
+  // --- Batch: Stadiums, Items, Tools, Supporters ---
+  "ハッコウシティ":{en:"Levincia", type:"スタジアム"},
+  "スパイクタウンジム":{en:"Spikemuth Gym", type:"スタジアム"},
+  "ミステリーガーデン":{en:"Mystery Garden", type:"スタジアム"},
+  "ロケット団のファクトリー":{en:"Team Rocket's Factory", type:"スタジアム"},
+  "ジャミングタワー":{en:"Jamming Tower", type:"スタジアム"},
+  "偉大な大樹":{en:"Great Big Tree", type:"スタジアム"},
+  "ヒートバーナー":{en:"Blowtorch", type:"ポケモンのどうぐ"},
+  "パンクメット":{en:"Punk Helmet", type:"ポケモンのどうぐ"},
+  "重力玉":{en:"Gravity Gemstone", type:"ポケモンのどうぐ"},
+  "ラッキーメット":{en:"Lucky Helmet", type:"ポケモンのどうぐ"},
+  "ヘビーバトン":{en:"Heavy Baton", type:"ポケモンのどうぐ"},
+  "つりざおMAX":{en:"Max Rod", type:"グッズ"},
+  "ダークボール":{en:"Dusk Ball", type:"グッズ"},
+  "パーフェクトミキサー":{en:"Brilliant Blender", type:"グッズ"},
+  "シークレットボックス":{en:"Secret Box", type:"グッズ"},
+  "エネルギー転送":{en:"Energy Search", type:"グッズ"},
+  "とりかえチケット":{en:"Redeemable Ticket", type:"グッズ"},
+  "ルチアのアピール":{en:"Lisia's Appeal", type:"サポート"},
+  "ビワ":{en:"Eri", type:"サポート"},
+  "ハロンタウン":{en:"Postwick", type:"スタジアム"},
+  "ハロタウン":{en:"Postwick", type:"スタジアム"},
+  "せいなるおまもり":{en:"Sacred Charm", type:"ポケモンのどうぐ"},
+  "ギーマの一手":{en:"Grimsley's Move", type:"サポート"},
+  "ひふきやろう":{en:"Firebreather", type:"ポケモンのどうぐ"},
+  "クラウン":{en:"Harlequin", type:"サポート"},
+  "おはやし笛":{en:"Accompanying Flute", type:"グッズ"},
+  "公民館":{en:"Community Center", type:"スタジアム"}
+};
+
+// --- Full dictionary loader -------------------------------------------
+// Instead of hand-typing all ~1,025+ Pokémon, we fetch PokéAPI's own
+// complete species-name dataset once and build a full ja→en dictionary
+// from it. LOCAL_DICT above still gives instant results before this
+// finishes loading (or if it fails), so search always works immediately
+// for common Pokémon.
+const FULL_DICT = {};
+let fullDictStatus = 'idle'; // idle | loading | ready | failed
+let fullDictPromise = null;
+
+const SPECIES_NAMES_CSV_URL =
+  'https://raw.githubusercontent.com/PokeAPI/pokeapi/master/data/v2/csv/pokemon_species_names.csv';
+const JA_LANGUAGE_ID = '1'; // ja-Hrkt
+const EN_LANGUAGE_ID = '9'; // en
+
+function parseCsvLine(line){
+  const result = [];
+  let cur = '';
+  let inQuotes = false;
+  for (let i = 0; i < line.length; i++){
+    const ch = line[i];
+    if (inQuotes){
+      if (ch === '"'){
+        if (line[i + 1] === '"'){ cur += '"'; i++; }
+        else inQuotes = false;
+      } else cur += ch;
+    } else {
+      if (ch === '"') inQuotes = true;
+      else if (ch === ','){ result.push(cur); cur = ''; }
+      else cur += ch;
+    }
+  }
+  result.push(cur);
+  return result;
+}
+
+async function loadFullDictionary(){
+  if (fullDictPromise) return fullDictPromise;
+  fullDictStatus = 'loading';
+  fullDictPromise = (async () => {
+    const res = await fetch(SPECIES_NAMES_CSV_URL);
+    if (!res.ok) throw new Error('csv fetch failed: ' + res.status);
+    const text = await res.text();
+    const lines = text.split('\n').filter(l => l.trim().length > 0);
+    const header = parseCsvLine(lines[0]);
+    const idxSpecies = header.indexOf('pokemon_species_id');
+    const idxLang = header.indexOf('local_language_id');
+    const idxName = header.indexOf('name');
+    if (idxSpecies === -1 || idxLang === -1 || idxName === -1){
+      throw new Error('unexpected csv format');
+    }
+
+    const jaBySpecies = {};
+    const enBySpecies = {};
+    for (let i = 1; i < lines.length; i++){
+      const cols = parseCsvLine(lines[i]);
+      const speciesId = cols[idxSpecies];
+      const langId = cols[idxLang];
+      const name = cols[idxName];
+      if (langId === JA_LANGUAGE_ID) jaBySpecies[speciesId] = name;
+      else if (langId === EN_LANGUAGE_ID) enBySpecies[speciesId] = name;
+    }
+
+    let count = 0;
+    for (const speciesId in jaBySpecies){
+      const en = enBySpecies[speciesId];
+      if (en){
+        FULL_DICT[jaBySpecies[speciesId]] = en;
+        count++;
+      }
+    }
+    fullDictStatus = 'ready';
+    return count;
+  })();
+
+  fullDictPromise.catch(() => { fullDictStatus = 'failed'; });
+  return fullDictPromise;
+}
+
+const els = {
+  input: document.getElementById('ja-input'),
+  inputLabel: document.getElementById('input-label'),
+  searchBtn: document.getElementById('search-btn'),
+  status: document.getElementById('status'),
+  result: document.getElementById('result'),
+  resultJa: document.getElementById('result-ja'),
+  resultEn: document.getElementById('result-en'),
+  resultKana: document.getElementById('result-kana'),
+  kanaBadge: document.getElementById('kana-badge'),
+  resultCategory: document.getElementById('result-category'),
+  openBtn: document.getElementById('open-btn'),
+  copyBtn: document.getElementById('copy-btn'),
+  urlPreview: document.getElementById('url-preview'),
+  manualToggle: document.getElementById('manual-toggle'),
+  manualBox: document.getElementById('manual-box'),
+  manualInput: document.getElementById('manual-input'),
+  manualSearchBtn: document.getElementById('manual-search-btn'),
+  historyChips: document.getElementById('history-chips'),
+  tabPokemon: document.getElementById('tab-pokemon'),
+  tabTrainer: document.getElementById('tab-trainer'),
+};
+
+let history = [];
+let currentEnglish = '';
+let currentMode = 'pokemon'; // 'pokemon' | 'trainer'
+
+function setMode(mode){
+  currentMode = mode;
+  els.tabPokemon.classList.toggle('active', mode === 'pokemon');
+  els.tabTrainer.classList.toggle('active', mode === 'trainer');
+  if (mode === 'pokemon'){
+    els.inputLabel.textContent = 'ポケモンの名前（日本語）';
+    els.input.placeholder = '例：ピカチュウ';
+    els.manualInput.placeholder = '例：Pikachu';
+  } else {
+    els.inputLabel.textContent = 'トレーナーズカードの名前（日本語）';
+    els.input.placeholder = '例：ボスの指令';
+    els.manualInput.placeholder = "例：Boss's Orders";
+  }
+  els.input.value = '';
+  els.result.classList.remove('show');
+  setStatus('');
+  renderHistory();
+}
+
+function buildSearchUrl(englishName){
+  const base = 'https://asia.pokemon-card.com/sg/card-search/list/';
+  return base + '?keyword=' + encodeURIComponent(englishName);
+}
+
+function showResult(jaName, enName, category){
+  currentEnglish = enName;
+  els.resultJa.textContent = jaName;
+  els.resultEn.textContent = enName;
+  els.urlPreview.textContent = buildSearchUrl(enName);
+  const reading = toKatakana(enName);
+  els.resultKana.textContent = reading.text;
+  els.kanaBadge.textContent = reading.verified ? '確認済み' : '自動生成（参考）';
+  els.kanaBadge.className = 'kana-badge ' + (reading.verified ? 'verified' : 'auto');
+  if (category){
+    els.resultCategory.textContent = category;
+    els.resultCategory.style.display = 'inline-block';
+  } else {
+    els.resultCategory.style.display = 'none';
+  }
+  els.result.classList.add('show');
+  if (!reading.verified){
+    upgradeKanaIfPossible(enName).catch(() => {});
+  }
+}
+
+function setStatus(msg, isError){
+  els.status.textContent = msg || '';
+  els.status.classList.toggle('error', !!isError);
+}
+
+function addHistory(jaName, enName, category){
+  history = history.filter(h => !(h.ja === jaName && h.mode === currentMode));
+  history.unshift({ja: jaName, en: enName, mode: currentMode, category: category || ''});
+  history = history.slice(0, 40);
+  renderHistory();
+}
+
+function renderHistory(){
+  els.historyChips.innerHTML = '';
+  history
+    .filter(h => h.mode === currentMode)
+    .slice(0, 8)
+    .forEach(h => {
+      const chip = document.createElement('button');
+      chip.type = 'button';
+      chip.className = 'chip';
+      chip.textContent = h.ja + ' → ' + h.en;
+      chip.addEventListener('click', () => {
+        els.input.value = h.ja;
+        showResult(h.ja, h.en, h.category);
+        setStatus('');
+      });
+      els.historyChips.appendChild(chip);
+    });
+}
+
+// Query PokéAPI's GraphQL beta endpoint: Japanese name -> species id -> English name
+async function translateViaApi(jaName){
+  const endpoint = 'https://beta.pokeapi.co/graphql/v1beta';
+
+  const idQuery = `
+    query getId($name: String!) {
+      pokemon_v2_pokemonspeciesname(
+        where: {name: {_eq: $name}, pokemon_v2_language: {name: {_eq: "ja-Hrkt"}}}
+      ) {
+        pokemon_species_id
+      }
+    }`;
+
+  const idRes = await fetch(endpoint, {
+    method: 'POST',
+    headers: {'content-type': 'application/json'},
+    body: JSON.stringify({query: idQuery, variables: {name: jaName}})
+  });
+  if (!idRes.ok) throw new Error('network');
+  const idJson = await idRes.json();
+  const match = idJson && idJson.data && idJson.data.pokemon_v2_pokemonspeciesname;
+  if (!match || match.length === 0) return null;
+  const speciesId = match[0].pokemon_species_id;
+
+  const nameQuery = `
+    query getEnglish($id: Int!) {
+      pokemon_v2_pokemonspeciesname(
+        where: {pokemon_species_id: {_eq: $id}, pokemon_v2_language: {name: {_eq: "en"}}}
+      ) {
+        name
+      }
+    }`;
+
+  const nameRes = await fetch(endpoint, {
+    method: 'POST',
+    headers: {'content-type': 'application/json'},
+    body: JSON.stringify({query: nameQuery, variables: {id: speciesId}})
+  });
+  if (!nameRes.ok) throw new Error('network');
+  const nameJson = await nameRes.json();
+  const enMatch = nameJson && nameJson.data && nameJson.data.pokemon_v2_pokemonspeciesname;
+  if (!enMatch || enMatch.length === 0) return null;
+  return enMatch[0].name;
+}
+
+function toTitleCase(s){
+  return s.replace(/\w\S*/g, t => t.charAt(0).toUpperCase() + t.slice(1).toLowerCase());
+}
+
+// Finds the best dictionary match for a given input. Tries an exact match
+// first; if none, looks for the longest dictionary key that appears
+// *inside* the input (e.g. "リーリエの決心" contains the key "リーリエ").
+// This lets the site's own keyword search surface related cards like
+// "Lillie's Determination" from just the base name "Lillie".
+function findBestMatch(input, dicts){
+  for (const dict of dicts){
+    if (dict[input] !== undefined) return { value: dict[input], matchedKey: input, partial: false };
+  }
+  let best = null;
+  for (const dict of dicts){
+    for (const key in dict){
+      if (key.length < 2) continue;
+      const inputContainsKey = input.includes(key);
+      const keyContainsInput = input.length >= 2 && key.includes(input);
+      if (inputContainsKey || keyContainsInput){
+        // Prefer the closest-length match (most specific overlap) among candidates.
+        const score = Math.min(key.length, input.length);
+        if (!best || score > best.score){
+          best = { value: dict[key], matchedKey: key, partial: true, score };
+        }
+      }
+    }
+  }
+  return best;
+}
+
+async function handleSearch(){
+  if (currentMode === 'trainer') return handleTrainerSearch();
+  return handlePokemonSearch();
+}
+
+async function handlePokemonSearch(){
+  const jaName = els.input.value.trim();
+  if (!jaName){
+    setStatus('ポケモンの名前を入力してください', true);
+    return;
+  }
+
+  els.searchBtn.disabled = true;
+  setStatus('検索中…');
+  els.result.classList.remove('show');
+
+  try{
+    const { base, suffix } = splitSuffix(jaName);
+
+    let match = findBestMatch(jaName, [LOCAL_DICT, FULL_DICT]) || findBestMatch(base, [LOCAL_DICT, FULL_DICT]);
+    let enBase = match ? match.value : null;
+
+    if (!enBase && fullDictStatus !== 'failed'){
+      if (fullDictStatus !== 'ready'){
+        setStatus('辞書を読み込み中…（初回のみ数秒かかります）');
+      }
+      try{
+        await loadFullDictionary();
+        match = findBestMatch(jaName, [FULL_DICT]) || findBestMatch(base, [FULL_DICT]);
+        enBase = match ? match.value : null;
+      }catch(e){ /* fall through to API lookup below */ }
+    }
+
+    if (!enBase){
+      setStatus('検索中…');
+      enBase = await translateViaApi(base);
+    }
+
+    if (!enBase){
+      setStatus('英語名が見つかりませんでした。「英語名を自分で入力する」からお試しください。', true);
+      els.searchBtn.disabled = false;
+      return;
+    }
+
+    enBase = toTitleCase(enBase);
+    const enName = suffix ? (enBase + ' ' + suffix) : enBase;
+    showResult(jaName, enName);
+    addHistory(jaName, enName);
+    setStatus(match && match.partial
+      ? '「' + match.matchedKey + '」に一致しました。関連カードもまとめて検索します。'
+      : '見つかりました！「検索結果を開く」を押してください。');
+    window.open(buildSearchUrl(enName), '_blank', 'noopener');
+  }catch(err){
+    setStatus('翻訳中にエラーが発生しました。「英語名を自分で入力する」からお試しください。', true);
+  }finally{
+    els.searchBtn.disabled = false;
+  }
+}
+
+async function handleTrainerSearch(){
+  const jaName = els.input.value.trim();
+  if (!jaName){
+    setStatus('トレーナーズカードの名前を入力してください', true);
+    return;
+  }
+
+  els.searchBtn.disabled = true;
+  setStatus('検索中…');
+  els.result.classList.remove('show');
+
+  const match = findBestMatch(jaName, [TRAINER_DICT]);
+
+  if (!match){
+    setStatus('辞書にまだ登録されていないカードです。「英語名を自分で入力する」からお試しください（この名前は教えてもらえれば辞書に追加できます）。', true);
+    els.searchBtn.disabled = false;
+    return;
+  }
+
+  const entry = match.value;
+  showResult(jaName, entry.en, entry.type);
+  addHistory(jaName, entry.en, entry.type);
+  setStatus(match.partial
+    ? '「' + match.matchedKey + '」に一致しました。関連カードもまとめて検索します。'
+    : '見つかりました！「検索結果を開く」を押してください。');
+  window.open(buildSearchUrl(entry.en), '_blank', 'noopener');
+  els.searchBtn.disabled = false;
+}
+
+// Start loading the full ja→en dictionary in the background as soon as the
+// page opens, so most searches hit an already-warm cache.
+loadFullDictionary().catch(() => { /* silent: LOCAL_DICT / API fallback still work */ });
+
+els.searchBtn.addEventListener('click', handleSearch);
+els.input.addEventListener('keydown', e => { if (e.key === 'Enter') handleSearch(); });
+
+els.openBtn.addEventListener('click', () => {
+  if (currentEnglish) window.open(buildSearchUrl(currentEnglish), '_blank', 'noopener');
+});
+
+els.copyBtn.addEventListener('click', async () => {
+  if (!currentEnglish) return;
+  try{
+    await navigator.clipboard.writeText(currentEnglish);
+    setStatus('英語名をコピーしました：' + currentEnglish);
+  }catch(e){
+    setStatus('コピーできませんでした。手動で選択してください。', true);
+  }
+});
+
+els.manualToggle.addEventListener('click', () => {
+  els.manualBox.classList.toggle('show');
+});
+
+els.manualSearchBtn.addEventListener('click', () => {
+  const enName = els.manualInput.value.trim();
+  if (!enName){
+    setStatus('英語名を入力してください', true);
+    return;
+  }
+  showResult(els.input.value.trim() || '(手動入力)', enName, null);
+  window.open(buildSearchUrl(enName), '_blank', 'noopener');
+  setStatus('');
+});
+
+els.tabPokemon.addEventListener('click', () => setMode('pokemon'));
+els.tabTrainer.addEventListener('click', () => setMode('trainer'));
+</script>
+</body>
+</html>
